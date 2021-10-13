@@ -1,4 +1,4 @@
-package ru.job4j.utils;
+package ru.job4j.grabber;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -9,14 +9,7 @@ public class Post {
     private String link;
     private String description;
     private LocalDateTime created;
-
-    public Post(int id, String title, String link, String description, LocalDateTime created) {
-        this.id = id;
-        this.title = title;
-        this.link = link;
-        this.description = description;
-        this.created = created;
-    }
+    private LocalDateTime updated;
 
     public Post(String title, String link, String description, LocalDateTime created) {
         this.title = title;
@@ -65,6 +58,14 @@ public class Post {
         this.created = created;
     }
 
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -92,7 +93,8 @@ public class Post {
                 + ", title='" + title + '\''
                 + ", link='" + link + '\''
                 + ", description='" + description + '\''
-                + ", created=" + created
+                + ", created=" + created + '\''
+                + ", updated=" + updated + '\''
                 + '}';
     }
 }

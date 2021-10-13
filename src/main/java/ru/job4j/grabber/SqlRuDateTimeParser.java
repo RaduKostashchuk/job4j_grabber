@@ -1,4 +1,4 @@
-package ru.job4j.utils;
+package ru.job4j.grabber;
 
 import static java.util.Map.entry;
 import java.time.LocalDateTime;
