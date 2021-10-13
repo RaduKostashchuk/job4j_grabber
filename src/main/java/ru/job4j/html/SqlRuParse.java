@@ -26,8 +26,6 @@ public class SqlRuParse {
                 }
                 Element link = tableRow.child(1).child(0);
                 detail(link.attr("href"));
-                //Element dateCell = tableRow.child(5);
-                //System.out.println(parser.parse(dateCell.text()));
             }
         }
     }
