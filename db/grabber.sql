@@ -1,9 +1,8 @@
 \c grabber
-create table if not exists post (
+create table if not exists posts (
     id serial primary key,
     name text,
     description text,
-    link text,
-    created timestamp,
-    primary key(id, link)
+    link text unique,
+    created timestamp
 );
