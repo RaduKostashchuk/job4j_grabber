@@ -4,5 +4,6 @@ create table if not exists posts (
     name text,
     description text,
     link text unique,
-    created timestamp
+    created timestamp,
+    updated timestamp
 );
