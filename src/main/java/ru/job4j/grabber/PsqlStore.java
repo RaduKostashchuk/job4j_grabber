@@ -25,20 +25,27 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     @Override
-    public void save(Post post) {
-    try (PreparedStatement statement = cnn.prepareStatement(
+    public int save(Post post) {
+        int result = -1;
+        try (PreparedStatement statement = cnn.prepareStatement(
             "insert into posts(name, description, link, created, updated)"
-                    + "values (?, ?, ?, ?, ?) on conflict do nothing")) {
-        statement.setString(1, post.getTitle());
-        statement.setString(2, post.getDescription());
-        statement.setString(3, post.getLink());
-        statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
-        statement.setTimestamp(5, Timestamp.valueOf(post.getUpdated()));
-        statement.execute();
-    } catch (SQLException e) {
+                    + "values (?, ?, ?, ?, ?) on conflict do nothing",
+            Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, post.getTitle());
+            statement.setString(2, post.getDescription());
+            statement.setString(3, post.getLink());
+            statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
+            statement.setTimestamp(5, Timestamp.valueOf(post.getUpdated()));
+            statement.execute();
+            try (ResultSet genKeys = statement.getGeneratedKeys()) {
+                if (genKeys.next()) {
+                    result = genKeys.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
         e.printStackTrace();
-    }
-
+        }
+        return result;
     }
 
     @Override
@@ -67,11 +74,11 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     @Override
-    public Post findById(String id) {
+    public Post findById(int id) {
         Post result = null;
         try (PreparedStatement statement = cnn.prepareStatement(
                 "select id, name, description, link, created, updated from posts where id = ?")) {
-            statement.setInt(1, Integer.parseInt(id));
+            statement.setInt(1, id);
             try (ResultSet rSet = statement.executeQuery()) {
                 if (rSet.next()) {
                     LocalDateTime created = rSet.getTimestamp("created").toLocalDateTime();
@@ -125,12 +132,13 @@ public class PsqlStore implements Store, AutoCloseable {
                 parser.parse("10 окт 21, 10:40 "),
                 parser.parse("10 окт 21, 11:40")
                 );
-        store.save(post1);
-        store.save(post2);
+        int post1Id = store.save(post1);
+        int post2Id = store.save(post2);
         for (Post post : store.getAll()) {
             System.out.println(post);
         }
-        System.out.println(store.findById("12"));
+        System.out.println(store.findById(post1Id));
+        System.out.println(store.findById(post2Id));
     }
 
 }
