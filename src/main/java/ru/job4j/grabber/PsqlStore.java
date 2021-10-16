@@ -25,8 +25,7 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     @Override
-    public int save(Post post) {
-        int result = -1;
+    public void save(Post post) {
         try (PreparedStatement statement = cnn.prepareStatement(
             "insert into posts(name, description, link, created, updated)"
                     + "values (?, ?, ?, ?, ?) on conflict do nothing",
@@ -37,15 +36,14 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             statement.setTimestamp(5, Timestamp.valueOf(post.getUpdated()));
             statement.execute();
-            try (ResultSet genKeys = statement.getGeneratedKeys()) {
-                if (genKeys.next()) {
-                    result = genKeys.getInt(1);
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    post.setId(generatedKeys.getInt(1));
                 }
             }
         } catch (SQLException e) {
         e.printStackTrace();
         }
-        return result;
     }
 
     @Override
@@ -132,13 +130,13 @@ public class PsqlStore implements Store, AutoCloseable {
                 parser.parse("10 окт 21, 10:40 "),
                 parser.parse("10 окт 21, 11:40")
                 );
-        int post1Id = store.save(post1);
-        int post2Id = store.save(post2);
+        store.save(post1);
+        store.save(post2);
         for (Post post : store.getAll()) {
             System.out.println(post);
         }
-        System.out.println(store.findById(post1Id));
-        System.out.println(store.findById(post2Id));
+        System.out.println(store.findById(post1.getId()));
+        System.out.println(store.findById(post2.getId()));
     }
 
 }
